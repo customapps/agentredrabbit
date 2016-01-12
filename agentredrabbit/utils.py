@@ -111,13 +111,13 @@ class RedisHelper(object):
             return None
         return length
 
-    def chunk_pop(self, queue, chunk_size=1000):
+    def chunk_pop(self, queue, chunk_size=10):
         """
         Method returns a chunk of popped values from a Redis list with a max
         chunk size of 1000. This method must be called by a thread or worker
         after acquiring a lock. Method returns multiple variables data, error.
         @param queue: Name of the Redis list
-        @param chunk_size: Maximum size of the chunk. Default 1000
+        @param chunk_size: Maximum size of the chunk. Default 10
         """
         if self.redis is None:
             error = self.connect()

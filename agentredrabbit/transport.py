@@ -312,23 +312,27 @@ class Transporter(threading.Thread):
             self.mailer.send(sub, msg)
         else:
             properties = pika.BasicProperties(app_id=self.tag,
+                                              content_type="text/object",
                                               delivery_mode=2,
                                               headers=self.message_header)
-            try:
-                self.channel.basic_publish(self.exchange,
-                                           self.routing_key,
-                                           "\n".join(message),
-                                           properties=properties,
-                                           mandatory=True)
-            except (pika.exceptions.ChannelClosed, Exception), err:
-                log.error("(%s) Publish error, channel closed?: %s, %s",
-                          self.tag, err, message)
-                with self.lock:
-                    heapq.heappush(failsafeq[self.queue], message)
-            else:
-                self.message_number += 1
-                self.deliveries.append(self.message_number)
-                log.debug("Published message # %i", self.message_number)
+            for rmsg in message:
+                try:
+                    self.channel.basic_publish(self.exchange,
+                                               self.routing_key,
+                                               rmsg,
+                                               properties=properties,
+                                               mandatory=True)
+                except (pika.exceptions.ChannelClosed, Exception), err:
+                    log.error("(%s) Publish error, channel closed?: %s, %s",
+                              self.tag, err, rmsg)
+                    with self.lock:
+                        """
+                        heapq.heappush(failsafeq[self.queue], rmsg)
+                        """
+                else:
+                    self.message_number += 1
+                    self.deliveries.append(self.message_number)
+                    log.debug("Published message # %i", self.message_number)
         self.publishing = False
         self.schedule_next_message()
 
