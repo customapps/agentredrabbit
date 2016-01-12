@@ -74,7 +74,7 @@ class Transporter(threading.Thread):
         self.tag = "%s-%s#%s" % (config["agent"], self.queue, self.threadnum)
         self.exchange = config["rabbit_exchange"]
         self.exchange_type = config["rabbit_exchange_type"]
-        self.routing_key = "%s.%s.log" % (socket.gethostname(), self.queue)
+        self.routing_key = "%s.%s" % (self.exchange, self.queue)
         self.publish_interval = float(config["publish_interval"])
         self.message_header = {"node": socket.gethostname(),
                                "queue": self.queue,
