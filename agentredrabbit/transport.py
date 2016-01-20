@@ -311,6 +311,7 @@ class Transporter(threading.Thread):
             log.error("%s: %s", sub, msg)
             self.mailer.send(sub, msg)
         else:
+            log.debug("Total messages to publish # %i", len(message))
             properties = pika.BasicProperties(app_id=self.tag,
                                               content_type="text/object",
                                               delivery_mode=2,
