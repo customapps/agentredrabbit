@@ -14,6 +14,7 @@ config_fields = {}
 config_fields['agent'] = 'agentredrabbit'
 config_fields['queues'] = 'queue1:queue2:queue3'
 config_fields['workers'] = 8
+config_fields['router'] = False
 config_fields['publish_interval'] = 1
 config_fields['redis_host'] = '127.0.0.1'
 config_fields['redis_port'] = '6379'

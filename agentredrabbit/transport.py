@@ -95,6 +95,7 @@ class Transporter(threading.Thread):
         self.publishing = False
         self.stopping = False
         self.closing = False
+        self.isRouter = config["router"]
 
     def connect(self):
         """
@@ -317,10 +318,23 @@ class Transporter(threading.Thread):
                                               delivery_mode=2,
                                               headers=self.message_header)
             for rmsg in message:
+                #check if this process needs to do routing based on key.
+                rkey = self.routing_key
+                msg_to_send = rmsg
+                exchng = self.exchange
+                if self.isRouter:
+                    try:
+                        pdata = json.loads(rmsg)
+                        rkey = "%s.%s" % (pdata["exchange"], pdata["routing_key"])
+                        msg_to_send = pdata["payload"]
+                        log.debug("Routing to %s : %s", rkey, msg_to_send )
+                    except ValueError:
+                        log.error("Message is not valid JSON: %s", rmsg )
+
                 try:
                     self.channel.basic_publish(self.exchange,
-                                               self.routing_key,
-                                               rmsg,
+                                               rkey,
+                                               msg_to_send,
                                                properties=properties,
                                                mandatory=True)
                 except (pika.exceptions.ChannelClosed, Exception), err:
